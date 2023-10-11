@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Management;
 using System.Runtime.Versioning;
 
@@ -10,21 +11,29 @@ namespace VideoCardHealthChecker
 		{
 			if (OperatingSystem.IsWindows())
 			{
-				ShowVideoCards();
+				var videoCards = GetVideoCards();
+
+				foreach (var videoCard in videoCards)
+				{
+					Console.WriteLine(videoCard);
+				}
 			}
 
 			Console.ReadKey();
 		}
 
 		[SupportedOSPlatform("windows")]
-		static void ShowVideoCards()
+		static IEnumerable<string> GetVideoCards()
 		{
 			var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_VideoController");
+			var videoCards = new List<string>();
 
 			foreach (var queryObj in searcher.Get())
 			{
-				Console.WriteLine(queryObj["VideoProcessor"]);
+				videoCards.Add(queryObj["VideoProcessor"].ToString());
 			}
+
+			return videoCards;
 		}
 	}
 }
